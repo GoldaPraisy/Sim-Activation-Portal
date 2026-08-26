@@ -1,0 +1,30 @@
+services:
+  # 🌐 Backend Express API Web Service
+  - type: web
+    name: sim-activation-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MOCK_CARRIER_DELAY_MS
+        value: 1000
+      - key: SMDP_SERVER
+        value: smdp.telecom-demo.io
+
+  # 📱 Frontend React Static Site
+  - type: web
+    name: sim-activation-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    publishDir: dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: sim-activation-backend
+          property: url
+        path: /api
