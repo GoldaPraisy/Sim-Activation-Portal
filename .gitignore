@@ -67,3 +67,11 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+
+# Java/Maven Build & IDE files
+**/target/
+**/.classpath
+**/.project
+**/.settings/
+**/.factorypath
+
