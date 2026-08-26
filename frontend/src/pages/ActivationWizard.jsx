@@ -29,7 +29,8 @@ import {
   Copy,
   Clock,
   Radio,
-  Download
+  Download,
+  Zap
 } from 'lucide-react';
 
 import QRCodeViewer from '../components/QRCodeViewer';
