@@ -1,9 +1,30 @@
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+/**
+ * Normalizes the API base URL to ensure proper endpoint routing on Render.
+ * Handles cases where the user inputs:
+ * - "https://service-name.onrender.com" -> appends "/api"
+ * - "https://service-name.onrender.com/api/" -> strips trailing slash
+ * - undefined or empty -> defaults to localhost:5000/api
+ */
+const resolveApiBase = () => {
+  const envUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
+  if (!envUrl) {
+    return 'http://localhost:5000/api';
+  }
+  let cleaned = envUrl.replace(/\/+$/, '');
+  if (!cleaned.endsWith('/api')) {
+    cleaned = `${cleaned}/api`;
+  }
+  return cleaned;
+};
+
+export const API_BASE = resolveApiBase();
+console.log(`[eSIM Portal] Configured API Base URL: ${API_BASE}`);
 
 const api = axios.create({
   baseURL: API_BASE,
+  timeout: 60000, // 60s timeout to allow for Render free tier cold starts
   headers: {
     'Content-Type': 'application/json'
   }
@@ -21,17 +42,24 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor: Handle Unauthorized
+// Response Interceptor: Handle Unauthorized & Friendly Network Errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
       // Don't auto-redirect on login or health endpoints
-      if (!error.config.url.includes('/auth/login') && !error.config.url.includes('/health')) {
+      const url = error.config?.url || '';
+      if (!url.includes('/auth/login') && !url.includes('/health')) {
         localStorage.removeItem('esim_token');
         localStorage.removeItem('esim_user');
       }
     }
+
+    // Enhance network/timeout errors with clear Render cold start context
+    if (error.code === 'ERR_NETWORK' || !error.response) {
+      error.message = 'Unable to reach backend server. If Render free tier was idle, it may take 30-50s to wake up. Please wait a moment and try again.';
+    }
+
     return Promise.reject(error);
   }
 );
@@ -77,5 +105,8 @@ export const getAllAdminUsers = () => api.get('/admin/users');
 export const getAllAdminDevices = () => api.get('/admin/devices');
 export const getAllAdminPayments = () => api.get('/admin/payments');
 export const getAdminAuditLogs = () => api.get('/admin/logs');
+
+// --- 8. Health Check API ---
+export const checkHealth = () => api.get('/health');
 
 export default api;

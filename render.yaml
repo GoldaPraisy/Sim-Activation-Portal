@@ -1,14 +1,22 @@
 services:
   # 🌐 Backend Express API Web Service
   - type: web
-    name: sim-activation-backend
+    name: Sim-Activation-Portal-With-E-Sim
     env: node
     rootDir: backend
+    plan: free
     buildCommand: npm install
     startCommand: npm start
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 5000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
       - key: MOCK_CARRIER_DELAY_MS
         value: 1000
       - key: SMDP_SERVER
@@ -21,10 +29,14 @@ services:
     rootDir: frontend
     buildCommand: npm install && npm run build
     publishDir: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
     envVars:
       - key: VITE_API_BASE_URL
         fromService:
           type: web
-          name: sim-activation-backend
+          name: Sim-Activation-Portal-With-E-Sim
           property: url
         path: /api

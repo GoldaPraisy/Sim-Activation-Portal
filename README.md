@@ -199,3 +199,50 @@ npm run dev
 - `GET /api/admin/devices` - All devices & EIDs
 - `GET /api/admin/payments` - Payments ledger
 - `GET /api/admin/logs` - Full audit trail
+
+---
+
+## ☁️ Deploying to Render.com
+
+### Option A: Automatic Blueprint Deployment (Recommended)
+1. Push this repository to GitHub.
+2. In [Render Dashboard](https://dashboard.render.com), click **New +** ➔ **Blueprint**.
+3. Connect your repository. Render will automatically detect `render.yaml` and set up:
+   - **Sim-Activation-Portal-With-E-Sim** (Node Web Service)
+   - **sim-activation-frontend** (Static Site with SPA rewrite rules & automatic API linking)
+4. Click **Apply**.
+
+---
+
+### Option B: Manual Service Creation
+
+#### 1. Backend Web Service:
+- **Type**: Web Service
+- **Runtime**: `Node`
+- **Root Directory**: `backend`
+- **Build Command**: `npm install`
+- **Start Command**: `npm start`
+- **Environment Variables**:
+  - `NODE_ENV` = `production`
+  - `PORT` = `5000`
+  - `JWT_SECRET` = `demo_esim_jwt_secret_key_super_secure_telecom_2026`
+  - `SMDP_SERVER` = `smdp.telecom-demo.io`
+- Copy your deployed backend URL: `https://<YOUR-BACKEND-NAME>.onrender.com`
+
+#### 2. Frontend Static Site:
+- **Type**: Static Site
+- **Root Directory**: `frontend`
+- **Build Command**: `npm install && npm run build`
+- **Publish Directory**: `dist`
+- **Environment Variables**:
+  - `VITE_API_BASE_URL` = `https://<YOUR-BACKEND-NAME>.onrender.com/api`
+  *(Note: The `/api` suffix is automatically appended by the frontend code even if omitted).*
+- **Redirects / Rewrites**: Render automatically applies `frontend/public/_redirects` (`/* /index.html 200`).
+
+> [!IMPORTANT]
+> **Rebuilding Vite on Render:**
+> Whenever you add or edit `VITE_API_BASE_URL` on Render Static Site, click **Manual Deploy** ➔ **Clear build cache & deploy** to re-compile the environment variables into the static bundle.
+>
+> **Render Free Tier Spin-Down:**
+> On the free tier, Render puts web services to sleep after 15 minutes of inactivity. When you make your first request, it may take 30-50 seconds to wake up. The frontend includes a status indicator and automatic timeouts to guide users smoothly.
+

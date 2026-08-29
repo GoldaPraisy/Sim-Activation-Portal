@@ -1,14 +1,23 @@
-# Use official OpenJDK 21 image
-FROM eclipse-temurin:21-jdk-alpine
+# Use official lightweight Node.js 20 Alpine image
+FROM node:20-alpine
 
 # Set working directory
 WORKDIR /app
 
-# Copy the built jar file
-COPY target/*.jar app.jar
+# Copy package manifests first for efficient docker caching
+COPY package*.json ./
 
-# Expose port 8080 (Cloud Run expects this)
-EXPOSE 8080
+# Install dependencies
+RUN npm ci --omit=dev
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Copy application source code
+COPY . .
+
+# Expose port (Render automatically provides $PORT)
+EXPOSE 5000
+
+# Set environment
+ENV NODE_ENV=production
+
+# Start Node.js Express server
+CMD ["node", "server.js"]

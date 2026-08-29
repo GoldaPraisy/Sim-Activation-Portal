@@ -34,9 +34,10 @@ const generalLimiter = rateLimit({
 app.use(generalLimiter);
 app.use(cors({
   origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With', 'Origin']
 }));
+app.options('*', cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -52,7 +53,20 @@ if (mockDelay > 0) {
   });
 }
 
-// Root Status & Healthcheck
+// Root Status
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    service: 'eSIM Provisioning & Management System Backend API',
+    status: 'ONLINE',
+    platform: 'Render.com',
+    healthCheck: '/api/health',
+    version: '1.0.0',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// API Healthcheck
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ONLINE',
@@ -92,12 +106,13 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start Server
-app.listen(PORT, () => {
+// Start Server - Bind to 0.0.0.0 for container / cloud hosting
+const HOST = '0.0.0.0';
+app.listen(PORT, HOST, () => {
   console.log(`\n======================================================`);
   console.log(`🚀 eSIM Management System Backend is running!`);
-  console.log(`📡 URL: http://localhost:${PORT}`);
-  console.log(`⚡ Health Check: http://localhost:${PORT}/api/health`);
+  console.log(`📡 URL: http://${HOST}:${PORT}`);
+  console.log(`⚡ Health Check: http://${HOST}:${PORT}/api/health`);
   console.log(`🔒 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`======================================================\n`);
 });
