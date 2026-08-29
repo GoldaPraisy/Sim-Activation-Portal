@@ -60,13 +60,29 @@ export default function LandingPage() {
           position: 'relative'
         }}
       >
+        <div style={{ marginBottom: '1.5rem', display: 'inline-block' }}>
+          <img
+            src="/logo.png"
+            alt="SIM Activation Portal Official Logo"
+            style={{
+              height: 120,
+              width: 'auto',
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 0 30px rgba(6, 182, 212, 0.45))'
+            }}
+          />
+        </div>
+
         <div
           className="badge badge-primary"
           style={{
             marginBottom: '1.5rem',
             padding: '0.4rem 1rem',
             fontSize: '0.85rem',
-            boxShadow: '0 0 20px rgba(99, 102, 241, 0.3)'
+            boxShadow: '0 0 20px rgba(99, 102, 241, 0.3)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6
           }}
         >
           <Sparkles size={14} color="#818cf8" />

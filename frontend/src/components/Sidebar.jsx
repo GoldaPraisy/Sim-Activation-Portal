@@ -30,17 +30,26 @@ export default function Sidebar({ isOpen, onClose }) {
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="sidebar-header">
-        <div className="brand-logo">
-          <div className="brand-icon-wrapper">
-            <Radio size={20} />
-          </div>
+        <NavLink to="/" className="brand-logo" style={{ textDecoration: 'none' }}>
+          <img
+            src="/logo.png"
+            alt="SIM Activation Portal Logo"
+            style={{
+              height: 38,
+              width: 'auto',
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 0 8px rgba(6, 182, 212, 0.4))'
+            }}
+          />
           <div>
-            <div style={{ lineHeight: 1.1 }}>eSIM Pulse</div>
-            <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 500 }}>
-              Telecom Platform
+            <div style={{ lineHeight: 1.1, fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+              SIM Activation
+            </div>
+            <span style={{ fontSize: '0.68rem', color: '#38bdf8', fontWeight: 600 }}>
+              Telecom Portal
             </span>
           </div>
-        </div>
+        </NavLink>
         <button
           className="menu-toggle-btn"
           style={{ display: isOpen ? 'flex' : 'none' }}

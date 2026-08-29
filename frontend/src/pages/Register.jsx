@@ -53,22 +53,17 @@ export default function Register() {
     <div style={{ maxWidth: '480px', margin: '2.5rem auto', padding: '0 1rem' }}>
       <div className="card card-glass card-glow-primary">
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div
+          <img
+            src="/logo.png"
+            alt="SIM Activation Portal Logo"
             style={{
-              width: 50,
-              height: 50,
-              borderRadius: 'var(--radius-md)',
-              background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-purple))',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#fff',
+              height: 70,
+              width: 'auto',
+              objectFit: 'contain',
               marginBottom: '1rem',
-              boxShadow: '0 0 20px var(--accent-primary-glow)'
+              filter: 'drop-shadow(0 0 15px rgba(6, 182, 212, 0.4))'
             }}
-          >
-            <UserPlus size={24} />
-          </div>
+          />
           <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>Create Subscriber Account</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.35rem' }}>
             Register to activate and provision simulated eSIMs.

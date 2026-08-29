@@ -44,22 +44,17 @@ export default function Login() {
     <div style={{ maxWidth: '440px', margin: '3rem auto', padding: '0 1rem' }}>
       <div className="card card-glass card-glow-primary">
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div
+          <img
+            src="/logo.png"
+            alt="SIM Activation Portal Logo"
             style={{
-              width: 50,
-              height: 50,
-              borderRadius: 'var(--radius-md)',
-              background: 'linear-gradient(135deg, var(--accent-primary), #06b6d4)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#fff',
+              height: 70,
+              width: 'auto',
+              objectFit: 'contain',
               marginBottom: '1rem',
-              boxShadow: '0 0 20px var(--accent-primary-glow)'
+              filter: 'drop-shadow(0 0 15px rgba(6, 182, 212, 0.4))'
             }}
-          >
-            <Lock size={24} />
-          </div>
+          />
           <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>Welcome Back</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.35rem' }}>
             Sign in to manage your eSIM profiles & devices.

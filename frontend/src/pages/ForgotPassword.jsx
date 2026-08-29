@@ -64,22 +64,17 @@ export default function ForgotPassword() {
     <div style={{ maxWidth: '440px', margin: '3rem auto', padding: '0 1rem' }}>
       <div className="card card-glass card-glow-primary">
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div
+          <img
+            src="/logo.png"
+            alt="SIM Activation Portal Logo"
             style={{
-              width: 50,
-              height: 50,
-              borderRadius: 'var(--radius-md)',
-              background: 'linear-gradient(135deg, var(--accent-cyan), var(--accent-primary))',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#fff',
+              height: 70,
+              width: 'auto',
+              objectFit: 'contain',
               marginBottom: '1rem',
-              boxShadow: '0 0 20px var(--accent-cyan-glow)'
+              filter: 'drop-shadow(0 0 15px rgba(6, 182, 212, 0.4))'
             }}
-          >
-            <KeyRound size={24} />
-          </div>
+          />
           <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>
             {step === 1 ? 'Reset Password' : 'Set New Password'}
           </h2>

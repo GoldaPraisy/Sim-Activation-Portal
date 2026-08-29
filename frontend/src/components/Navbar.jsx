@@ -30,6 +30,17 @@ export default function Navbar({ onMenuToggle }) {
           <Menu size={20} />
         </button>
 
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', marginRight: '0.5rem' }}>
+          <img
+            src="/logo.png"
+            alt="SIM Activation Portal Logo"
+            style={{ height: 28, width: 'auto', objectFit: 'contain' }}
+          />
+          <span style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-primary)', display: 'inline-block' }}>
+            SIM Activation Portal
+          </span>
+        </Link>
+
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           <div className="live-pulse-dot" title="SM-DP+ Provisioning Server Live" />
           <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
