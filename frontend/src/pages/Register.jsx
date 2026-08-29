@@ -64,9 +64,9 @@ export default function Register() {
               filter: 'drop-shadow(0 0 15px rgba(6, 182, 212, 0.4))'
             }}
           />
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>Create Subscriber Account</h2>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>Create Account</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.35rem' }}>
-            Register to activate and provision simulated eSIMs.
+            Register to activate and manage your SIM cards.
           </p>
         </div>
 

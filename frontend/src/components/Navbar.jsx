@@ -1,27 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Menu, Zap, Shield, LogIn, ArrowRight, Activity } from 'lucide-react';
-import { checkHealth } from '../services/api';
+import { Menu, Zap, Shield, LogIn, ArrowRight } from 'lucide-react';
 
 export default function Navbar({ onMenuToggle }) {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
-  const navigate = useNavigate();
-  const [apiStatus, setApiStatus] = useState('CHECKING'); // CHECKING | ONLINE | SLEEPING | OFFLINE
-
-  useEffect(() => {
-    let isMounted = true;
-    checkHealth()
-      .then(() => {
-        if (isMounted) setApiStatus('ONLINE');
-      })
-      .catch(() => {
-        if (isMounted) setApiStatus('SLEEPING');
-      });
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   return (
     <header className="topbar">
@@ -30,45 +12,16 @@ export default function Navbar({ onMenuToggle }) {
           <Menu size={20} />
         </button>
 
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', marginRight: '0.5rem' }}>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
           <img
             src="/logo.png"
             alt="SIM Activation Portal Logo"
             style={{ height: 28, width: 'auto', objectFit: 'contain' }}
           />
-          <span style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-primary)', display: 'inline-block' }}>
+          <span style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-primary)' }}>
             SIM Activation Portal
           </span>
         </Link>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <div className="live-pulse-dot" title="SM-DP+ Provisioning Server Live" />
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-            SM-DP+ Engine: <strong style={{ color: '#38bdf8' }}>smdp.telecom-demo.io</strong>
-          </span>
-
-          {apiStatus === 'ONLINE' && (
-            <span className="badge badge-success" style={{ fontSize: '0.68rem', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981', display: 'inline-block' }} />
-              API Connected
-            </span>
-          )}
-
-          {apiStatus === 'SLEEPING' && (
-            <span
-              className="badge badge-warning"
-              style={{ fontSize: '0.68rem', display: 'inline-flex', alignItems: 'center', gap: 4, cursor: 'help' }}
-              title="Render free tier may take ~30-50s to wake up if idle. Try refreshing or logging in."
-            >
-              <Activity size={11} className="spinner" />
-              API Waking Up...
-            </span>
-          )}
-
-          <span className="badge badge-primary" style={{ fontSize: '0.68rem' }}>
-            5G SA Ready
-          </span>
-        </div>
       </div>
 
       <div className="topbar-right">

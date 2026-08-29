@@ -17,14 +17,14 @@ export default function Sidebar({ isOpen, onClose }) {
 
   const userNavItems = [
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/activate', label: 'Activate eSIM', icon: Zap, badge: 'New' },
-    { to: '/devices', label: 'My Devices & EIDs', icon: Smartphone },
-    { to: '/plans', label: 'Telecom Plans', icon: Layers },
+    { to: '/activate', label: 'Activate SIM', icon: Zap },
+    { to: '/devices', label: 'My Devices', icon: Smartphone },
+    { to: '/plans', label: 'Plans', icon: Layers },
     { to: '/activations', label: 'Activation History', icon: History }
   ];
 
   const adminNavItems = [
-    { to: '/admin', label: 'Admin Command Center', icon: ShieldAlert, adminOnly: true }
+    { to: '/admin', label: 'Admin Dashboard', icon: ShieldAlert, adminOnly: true }
   ];
 
   return (
@@ -60,7 +60,7 @@ export default function Sidebar({ isOpen, onClose }) {
       </div>
 
       <nav className="sidebar-nav">
-        <div className="nav-section-label">Subscriber Portal</div>
+        <div className="nav-section-label">Navigation</div>
         {userNavItems.map(item => {
           const Icon = item.icon;
           return (
@@ -94,7 +94,7 @@ export default function Sidebar({ isOpen, onClose }) {
         {isAdmin && (
           <>
             <div className="nav-section-label" style={{ marginTop: '1rem', color: '#f59e0b' }}>
-              Carrier Operator Admin
+              Admin
             </div>
             {adminNavItems.map(item => {
               const Icon = item.icon;
