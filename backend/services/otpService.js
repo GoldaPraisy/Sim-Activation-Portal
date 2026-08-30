@@ -4,11 +4,65 @@ import { v4 as uuidv4 } from 'uuid';
 const OTP_EXPIRY_MINUTES = 5;
 const MAX_ATTEMPTS = 3;
 
+/**
+ * Helper to dispatch SMS via Twilio REST API
+ */
+async function sendTwilioSms(to, body) {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  const fromNumber = process.env.TWILIO_PHONE_NUMBER;
+
+  if (!accountSid || !authToken || !fromNumber) {
+    console.log('⚠️ Twilio keys missing. Running in simulated fallback mode.');
+    console.log(`[SMS SIMULATION to +91 ${to.slice(-10)}]: ${body}`);
+    return false;
+  }
+
+  try {
+    const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+    const auth = Buffer.from(`${accountSid}:${authToken}`).toString('base64');
+    
+    // Normalize target phone format (assuming +91 for Indian subscribers if 10 digits)
+    let formattedTo = to.trim().replace(/[\s-+()]/g, '');
+    if (formattedTo.length === 10) {
+      formattedTo = `+91${formattedTo}`;
+    } else if (!formattedTo.startsWith('+')) {
+      // Add '+' if missing but country code present
+      formattedTo = `+${formattedTo}`;
+    }
+
+    const params = new URLSearchParams();
+    params.append('To', formattedTo);
+    params.append('From', fromNumber);
+    params.append('Body', body);
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${auth}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: params.toString()
+    });
+
+    const resJson = await response.json();
+    if (!response.ok) {
+      throw new Error(resJson.message || `Twilio HTTP ${response.status}: ${resJson.detail || ''}`);
+    }
+    
+    console.log(`✅ Real Twilio SMS sent to ${formattedTo}. SID: ${resJson.sid}`);
+    return true;
+  } catch (err) {
+    console.error('❌ Twilio Gateway Failure:', err.message);
+    return false;
+  }
+}
+
 export class OtpService {
   /**
    * Generates a new 6-digit OTP for a given phone number
    */
-  static generateOtp(phone) {
+  static async generateOtp(phone) {
     const cleanPhone = phone.replace(/[\s-+()]/g, '');
     
     // Generate 6-digit random number
@@ -31,15 +85,22 @@ export class OtpService {
       attempts: 0
     });
 
-    const isDev = process.env.ENABLE_DEV_OTP !== 'false';
+    // Try sending real SMS
+    const msgBody = `Your SIM Activation Portal verification code is ${otpCode}. Valid for 5 minutes. Do not share this code.`;
+    const wasRealSmsSent = await sendTwilioSms(cleanPhone, msgBody);
+
+    // If Twilio is active, do not leak OTP code to the client
+    const isTwilioActive = !!process.env.TWILIO_ACCOUNT_SID && !!process.env.TWILIO_AUTH_TOKEN;
 
     return {
       otpId: otpRecord.id,
       phone: cleanPhone,
       expiresAt: otpRecord.expires_at,
       expirySeconds: OTP_EXPIRY_MINUTES * 60,
-      devOtp: isDev ? otpCode : undefined, // Returned for simulated frontend demo helper
-      message: `OTP sent successfully to +91 ${cleanPhone.slice(-10)}`
+      devOtp: isTwilioActive ? undefined : otpCode, // Only expose verification code to UI if we are in simulation mode
+      message: wasRealSmsSent 
+        ? `OTP successfully sent to +91 ${cleanPhone.slice(-10)}`
+        : `OTP generated (Simulation mode). Code logged in console.`
     };
   }
 

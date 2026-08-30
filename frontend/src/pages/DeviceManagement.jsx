@@ -28,6 +28,7 @@ export default function DeviceManagement() {
     eid: '',
     imei: ''
   });
+  const [customDeviceType, setCustomDeviceType] = useState('');
 
   // Live EID Validation state
   const [eidValidationStatus, setEidValidationStatus] = useState({
@@ -136,7 +137,11 @@ export default function DeviceManagement() {
 
     setIsSubmitting(true);
     try {
-      const res = await registerDevice(formData);
+      const submitPayload = {
+        ...formData,
+        device_type: formData.device_type === 'Other' ? (customDeviceType || 'Other') : formData.device_type
+      };
+      const res = await registerDevice(submitPayload);
       if (res.data.success) {
         toast.success(res.data.message);
         setFormData({
@@ -147,6 +152,7 @@ export default function DeviceManagement() {
           eid: '',
           imei: ''
         });
+        setCustomDeviceType('');
         setEidValidationStatus({ isValid: false, message: '', formatted: '' });
         fetchDevices();
       }
@@ -235,9 +241,23 @@ export default function DeviceManagement() {
                   <option value="iPhone">Apple iPhone</option>
                   <option value="Android">Android Phone</option>
                   <option value="iPad">Apple iPad</option>
-                  <option value="Other">Other eSIM Device</option>
+                  <option value="Other">Other Devices</option>
                 </select>
               </div>
+
+              {formData.device_type === 'Other' && (
+                <div className="form-group" style={{ gridColumn: 'span 2', marginTop: '-0.5rem' }}>
+                  <label className="form-label">Specify Custom Device Type *</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={customDeviceType}
+                    onChange={(e) => setCustomDeviceType(e.target.value)}
+                    placeholder="e.g. Smart Watch, Windows Laptop, Router"
+                    required={formData.device_type === 'Other'}
+                  />
+                </div>
+              )}
 
               <div className="form-group">
                 <label className="form-label">Operating System *</label>

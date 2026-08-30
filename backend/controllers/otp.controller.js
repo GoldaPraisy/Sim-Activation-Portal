@@ -13,7 +13,7 @@ export class OtpController {
         return res.status(400).json({ success: false, message: phoneValidation.error });
       }
 
-      const result = OtpService.generateOtp(phoneValidation.cleanPhone);
+      const result = await OtpService.generateOtp(phoneValidation.cleanPhone);
       return res.json({
         success: true,
         ...result

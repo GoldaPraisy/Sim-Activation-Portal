@@ -7,6 +7,7 @@ import {
   Layers,
   History,
   ShieldAlert,
+  HelpCircle,
   LogOut,
   Radio,
   X
@@ -20,7 +21,8 @@ export default function Sidebar({ isOpen, onClose }) {
     { to: '/activate', label: 'Activate SIM', icon: Zap },
     { to: '/devices', label: 'My Devices', icon: Smartphone },
     { to: '/plans', label: 'Plans', icon: Layers },
-    { to: '/activations', label: 'Activation History', icon: History }
+    { to: '/activations', label: 'Activation History', icon: History },
+    { to: '/help', label: 'Help Center', icon: HelpCircle }
   ];
 
   const adminNavItems = [

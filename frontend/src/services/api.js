@@ -89,6 +89,8 @@ export const resendOtp = (phone) => api.post('/otp/resend', { phone });
 // --- 5. Payment APIs ---
 export const calculateCheckout = (planId) => api.post('/payment/calculate', { planId });
 export const processPayment = (data) => api.post('/payment/process', data);
+export const createRazorpayOrder = (planId) => api.post('/payment/razorpay/create-order', { planId });
+export const verifyRazorpayPayment = (data) => api.post('/payment/razorpay/verify-payment', data);
 export const getMyPayments = () => api.get('/payment/my-payments');
 
 // --- 6. eSIM Provisioning APIs ---

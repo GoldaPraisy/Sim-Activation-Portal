@@ -22,6 +22,8 @@ import ActivationWizard from './pages/ActivationWizard';
 import ActivationDetails from './pages/ActivationDetails';
 import Activations from './pages/Activations';
 import AdminDashboard from './pages/AdminDashboard';
+import HelpCenter from './pages/HelpCenter';
+import AppTour from './components/AppTour';
 
 import './App.css';
 
@@ -61,6 +63,9 @@ export default function App() {
           {/* Sticky Demo Mode Disclaimer Banner */}
           <DemoBanner />
 
+          {/* Onboarding Tour Guide Overlay */}
+          <AppTour />
+
           <div className="app-container">
             {/* Sidebar Navigation */}
             <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
@@ -77,6 +82,7 @@ export default function App() {
                   <Route path="/register" element={<Register />} />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
                   <Route path="/plans" element={<PlansPage />} />
+                  <Route path="/help" element={<HelpCenter />} />
 
                   {/* Protected Subscriber Routes */}
                   <Route element={<ProtectedRoute />}>

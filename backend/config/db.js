@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
+import mongoose from 'mongoose';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,12 +15,37 @@ if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
+// Mongoose Schema for MongoDB persistence
+const globalDbSchema = new mongoose.Schema({
+  key: { type: String, required: true, unique: true },
+  data: { type: Object, required: true },
+  updated_at: { type: Date, default: Date.now }
+});
+
+const GlobalDb = mongoose.models.GlobalDb || mongoose.model('GlobalDb', globalDbSchema);
+
 // Initial Database Structure
 const initialData = {
   users: [],
   admin_users: [],
   devices: [],
   plans: [
+    // --- Jio Plans ---
+    {
+      id: 'plan-jio-199',
+      operator: 'Jio',
+      plan_name: 'Starter Lite 199',
+      price: 199,
+      validity_days: 18,
+      data_per_day: '1.5 GB/day',
+      is_unlimited_5g: false,
+      total_data_gb: 27,
+      sms_allowance: '100 SMS/day',
+      calling_benefits: 'Unlimited Local & National Calling',
+      ott_perks: 'JioTV, JioCloud',
+      is_popular: false,
+      created_at: new Date().toISOString()
+    },
     {
       id: 'plan-jio-299',
       operator: 'Jio',
@@ -32,7 +58,37 @@ const initialData = {
       sms_allowance: '100 SMS/day',
       calling_benefits: 'Truly Unlimited Voice Calls (Local+STD)',
       ott_perks: 'JioTV, JioCinema, JioCloud',
+      is_popular: false,
+      created_at: new Date().toISOString()
+    },
+    {
+      id: 'plan-jio-349',
+      operator: 'Jio',
+      plan_name: 'Hero Unlimited 349',
+      price: 349,
+      validity_days: 28,
+      data_per_day: '2.0 GB/day',
+      is_unlimited_5g: true,
+      total_data_gb: 56,
+      sms_allowance: '100 SMS/day',
+      calling_benefits: 'Truly Unlimited Voice (Local+STD)',
+      ott_perks: 'JioTV, JioCinema, JioCloud Perks',
       is_popular: true,
+      created_at: new Date().toISOString()
+    },
+    {
+      id: 'plan-jio-666',
+      operator: 'Jio',
+      plan_name: 'Super Value 666',
+      price: 666,
+      validity_days: 70,
+      data_per_day: '1.5 GB/day',
+      is_unlimited_5g: true,
+      total_data_gb: 105,
+      sms_allowance: '100 SMS/day',
+      calling_benefits: 'Truly Unlimited Calls + Unlimited 5G',
+      ott_perks: 'JioTV, JioCinema, JioCloud',
+      is_popular: false,
       created_at: new Date().toISOString()
     },
     {
@@ -65,6 +121,22 @@ const initialData = {
       is_popular: false,
       created_at: new Date().toISOString()
     },
+    // --- Airtel Plans ---
+    {
+      id: 'plan-airtel-199',
+      operator: 'Airtel',
+      plan_name: 'Value Pack 199',
+      price: 199,
+      validity_days: 28,
+      data_per_day: '2 GB total',
+      is_unlimited_5g: false,
+      total_data_gb: 2,
+      sms_allowance: '100 SMS total',
+      calling_benefits: 'Truly Unlimited Calls',
+      ott_perks: 'Free Wynk Music',
+      is_popular: false,
+      created_at: new Date().toISOString()
+    },
     {
       id: 'plan-airtel-299',
       operator: 'Airtel',
@@ -78,6 +150,21 @@ const initialData = {
       calling_benefits: 'Unlimited STD + Local + Free Roaming',
       ott_perks: 'Airtel Xstream Play, Wynk Music Free',
       is_popular: false,
+      created_at: new Date().toISOString()
+    },
+    {
+      id: 'plan-airtel-349',
+      operator: 'Airtel',
+      plan_name: 'Unlimited 5G 349',
+      price: 349,
+      validity_days: 28,
+      data_per_day: '2.0 GB/day',
+      is_unlimited_5g: true,
+      total_data_gb: 56,
+      sms_allowance: '100 SMS/day',
+      calling_benefits: 'Truly Unlimited Calls',
+      ott_perks: 'Xstream Play, Apollo 24|7 Circle',
+      is_popular: true,
       created_at: new Date().toISOString()
     },
     {
@@ -110,6 +197,22 @@ const initialData = {
       is_popular: true,
       created_at: new Date().toISOString()
     },
+    // --- Vi Plans ---
+    {
+      id: 'plan-vi-199',
+      operator: 'Vi',
+      plan_name: 'Starter 199',
+      price: 199,
+      validity_days: 18,
+      data_per_day: '1 GB/day',
+      is_unlimited_5g: false,
+      total_data_gb: 18,
+      sms_allowance: '100 SMS/day',
+      calling_benefits: 'Truly Unlimited Calls',
+      ott_perks: 'Vi Movies & TV Access',
+      is_popular: false,
+      created_at: new Date().toISOString()
+    },
     {
       id: 'plan-vi-299',
       operator: 'Vi',
@@ -123,6 +226,21 @@ const initialData = {
       calling_benefits: 'Unlimited Calls to Any Network',
       ott_perks: 'Binge All Night (12 AM - 6 AM No Data Limit), Weekend Rollover',
       is_popular: false,
+      created_at: new Date().toISOString()
+    },
+    {
+      id: 'plan-vi-349',
+      operator: 'Vi',
+      plan_name: 'Hero Daily 349',
+      price: 349,
+      validity_days: 28,
+      data_per_day: '1.5 GB/day',
+      is_unlimited_5g: false,
+      total_data_gb: 42,
+      sms_allowance: '100 SMS/day',
+      calling_benefits: 'Unlimited Local/STD Calls',
+      ott_perks: 'Binge All Night, Weekend Data Rollover',
+      is_popular: true,
       created_at: new Date().toISOString()
     },
     {
@@ -155,6 +273,7 @@ const initialData = {
       is_popular: false,
       created_at: new Date().toISOString()
     },
+    // --- BSNL Plans ---
     {
       id: 'plan-bsnl-141',
       operator: 'BSNL',
@@ -167,6 +286,36 @@ const initialData = {
       sms_allowance: '100 SMS/day',
       calling_benefits: 'Unlimited Voice Calling (Home + Roaming)',
       ott_perks: 'Free BSNL Custom Caller Tunes',
+      is_popular: false,
+      created_at: new Date().toISOString()
+    },
+    {
+      id: 'plan-bsnl-199',
+      operator: 'BSNL',
+      plan_name: 'BSNL PV 199',
+      price: 199,
+      validity_days: 30,
+      data_per_day: '2 GB/day',
+      is_unlimited_5g: false,
+      total_data_gb: 60,
+      sms_allowance: '100 SMS/day',
+      calling_benefits: 'Truly Unlimited Local & Roaming Calls',
+      ott_perks: 'BSNL Tunes',
+      is_popular: false,
+      created_at: new Date().toISOString()
+    },
+    {
+      id: 'plan-bsnl-349',
+      operator: 'BSNL',
+      plan_name: 'Voice & Data Combo 349',
+      price: 349,
+      validity_days: 54,
+      data_per_day: '2 GB/day',
+      is_unlimited_5g: false,
+      total_data_gb: 108,
+      sms_allowance: '100 SMS/day',
+      calling_benefits: 'Unlimited Calling to any Network',
+      ott_perks: 'Free PRBT and BSNL Tunes',
       is_popular: false,
       created_at: new Date().toISOString()
     },
@@ -185,6 +334,7 @@ const initialData = {
       is_popular: true,
       created_at: new Date().toISOString()
     },
+    // --- Demo Telecom Plans ---
     {
       id: 'plan-demo-199',
       operator: 'Demo Telecom',
@@ -211,13 +361,18 @@ class Database {
   constructor() {
     this.data = this.load();
     this.seedDefaultUsers();
+    this.isMongoConnected = false;
+    this.initMongoDB();
   }
 
   load() {
     try {
       if (fs.existsSync(DB_FILE)) {
         const fileContent = fs.readFileSync(DB_FILE, 'utf-8');
-        return JSON.parse(fileContent);
+        const parsed = JSON.parse(fileContent);
+        // Always enforce updated plans array from the static code definitions
+        parsed.plans = initialData.plans;
+        return parsed;
       }
     } catch (err) {
       console.error('Error reading database file, initializing fresh store:', err);
@@ -226,9 +381,61 @@ class Database {
     return JSON.parse(JSON.stringify(initialData));
   }
 
+  async initMongoDB() {
+    const mongoUri = process.env.MONGODB_URI;
+    if (!mongoUri) {
+      console.log('ℹ️ MONGODB_URI not provided. Running in local JSON database mode.');
+      return;
+    }
+
+    try {
+      console.log('📡 Connecting to MongoDB Atlas for persistent storage...');
+      await mongoose.connect(mongoUri);
+      console.log('✅ Connected to MongoDB Atlas successfully.');
+      this.isMongoConnected = true;
+
+      // Fetch the global state document
+      const doc = await GlobalDb.findOne({ key: 'global_db' });
+      if (doc && doc.data) {
+        console.log('📊 Persistent data loaded from MongoDB. Merging with local cache...');
+        
+        // Merge documents, prioritizing Mongo but maintaining latest plan catalog from code
+        this.data = {
+          ...this.data,
+          ...doc.data,
+          plans: initialData.plans
+        };
+
+        // Write to local json for lightning-fast reads
+        fs.writeFileSync(DB_FILE, JSON.stringify(this.data, null, 2), 'utf-8');
+      } else {
+        console.log('📝 Creating initial database document on MongoDB Atlas...');
+        await GlobalDb.findOneAndUpdate(
+          { key: 'global_db' },
+          { data: this.data },
+          { upsert: true, new: true }
+        );
+      }
+    } catch (err) {
+      console.error('❌ Failed to synchronize with MongoDB Atlas:', err);
+    }
+  }
+
   save(dataToSave = this.data) {
     try {
+      // Synchronously write to local disk
       fs.writeFileSync(DB_FILE, JSON.stringify(dataToSave, null, 2), 'utf-8');
+      
+      // Asynchronously mirror updates to MongoDB Atlas in the background
+      if (this.isMongoConnected) {
+        GlobalDb.findOneAndUpdate(
+          { key: 'global_db' },
+          { data: dataToSave, updated_at: new Date() },
+          { upsert: true }
+        ).catch(err => {
+          console.error('❌ Error synchronizing state to MongoDB Atlas:', err);
+        });
+      }
     } catch (err) {
       console.error('Error persisting database to disk:', err);
     }
@@ -287,7 +494,7 @@ class Database {
 
       // Seed a sample completed eSIM activation request
       const sampleRequestId = 'req-demo-001';
-      const samplePlan = this.data.plans[0];
+      const samplePlan = this.data.plans[1]; // Freedom 299
       const sampleEsimRequest = {
         id: sampleRequestId,
         request_code: 'REQ-2026-89101',

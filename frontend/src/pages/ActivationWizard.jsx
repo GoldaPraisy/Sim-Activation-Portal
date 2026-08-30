@@ -45,6 +45,7 @@ export default function ActivationWizard() {
 
   // Step Management: 1: Device/EID, 2: Operator & Plan, 3: Mobile & OTP, 4: Provisioning & QR, 5: Live Status
   const [currentStep, setCurrentStep] = useState(1);
+  const [simType, setSimType] = useState('eSIM'); // eSIM | Physical SIM
 
   // Data State
   const [devices, setDevices] = useState([]);
@@ -134,16 +135,24 @@ export default function ActivationWizard() {
 
   // --- Step 1: Device & EID validation ---
   const handleProceedFromStep1 = () => {
-    if (selectedDeviceId === 'manual') {
-      const check = validateEID(manualEid);
-      if (!check.isValid) {
-        toast.error(check.error);
-        return;
+    if (simType === 'eSIM') {
+      if (selectedDeviceId === 'manual') {
+        const check = validateEID(manualEid);
+        if (!check.isValid) {
+          toast.error(check.error);
+          return;
+        }
+      } else if (!selectedDeviceId && devices.length === 0) {
+        const check = validateEID(manualEid);
+        if (!check.isValid) {
+          toast.error('Please enter a valid 32-digit EID or select a registered device.');
+          return;
+        }
       }
-    } else if (!selectedDeviceId && devices.length === 0) {
-      const check = validateEID(manualEid);
-      if (!check.isValid) {
-        toast.error('Please enter a valid 32-digit EID or select a registered device.');
+    } else {
+      // Physical SIM: EID is optional/skipped. Ensure device name is selected/entered.
+      if (selectedDeviceId === 'manual' && !deviceName.trim()) {
+        toast.error('Please enter your device name.');
         return;
       }
     }
@@ -292,15 +301,39 @@ export default function ActivationWizard() {
 
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+      {/* Reminder Banner */}
+      <div
+        style={{
+          background: 'rgba(99, 102, 241, 0.1)',
+          border: '1px solid rgba(99, 102, 241, 0.25)',
+          padding: '0.85rem 1.25rem',
+          borderRadius: 'var(--radius-md)',
+          marginBottom: '1.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.6rem',
+          fontSize: '0.88rem'
+        }}
+      >
+        <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: '#6366f1' }} />
+        <span>
+          Register you device in{' '}
+          <Link to="/devices" style={{ color: 'var(--accent-cyan)', textDecoration: 'underline', fontWeight: 600 }}>
+            My Devices
+          </Link>{' '}
+          and activate your sim Here
+        </span>
+      </div>
+
       {/* Wizard Header */}
       <div className="page-header" style={{ marginBottom: '1.5rem' }}>
         <div>
           <h1 className="page-title">
             <Zap size={28} color="var(--accent-primary)" />
-            eSIM Activation Lifecycle Wizard
+            SIM Activation Lifecycle Wizard
           </h1>
           <p className="page-subtitle">
-            Simulate the end-to-end GSMA carrier eSIM provisioning workflow.
+            Configure, pay, and instantly activate physical or eSIM digital network profiles.
           </p>
         </div>
       </div>
@@ -309,10 +342,10 @@ export default function ActivationWizard() {
       <div className="card card-glass" style={{ padding: '1rem 1.75rem', marginBottom: '2rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
           {[
-            { num: 1, label: 'Device & EID' },
+            { num: 1, label: 'Device & SIM Type' },
             { num: 2, label: 'Operator & Plan' },
             { num: 3, label: 'Mobile & OTP' },
-            { num: 4, label: 'eSIM Profile & QR' }
+            { num: 4, label: 'SIM Activation' }
           ].map(s => (
             <div
               key={s.num}
@@ -352,11 +385,49 @@ export default function ActivationWizard() {
         <div className="card card-glass">
           <h2 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Smartphone size={22} color="var(--accent-cyan)" />
-            Step 1: Select or Register eSIM Device
+            Step 1: Select SIM Type & Device
           </h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.75rem' }}>
-            Choose an existing registered device or input a 32-digit EID to provision the profile for.
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+            Choose between a digital eSIM activation or physical SIM provisioning for your handset.
           </p>
+
+          {/* SIM Type Toggle */}
+          <div style={{ marginBottom: '1.75rem' }}>
+            <label className="form-label">Select SIM Type *</label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div
+                onClick={() => setSimType('eSIM')}
+                style={{
+                  background: simType === 'eSIM' ? 'rgba(6, 182, 212, 0.12)' : 'var(--bg-surface)',
+                  border: simType === 'eSIM' ? '2px solid var(--accent-cyan)' : '1px solid var(--border-subtle)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '1rem',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  transition: 'all var(--transition-fast)'
+                }}
+              >
+                <div style={{ fontWeight: 800, fontSize: '1.05rem', color: simType === 'eSIM' ? 'var(--accent-cyan)' : 'var(--text-primary)' }}>eSIM (Digital)</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>Instant provisioning via QR code</div>
+              </div>
+
+              <div
+                onClick={() => setSimType('Physical SIM')}
+                style={{
+                  background: simType === 'Physical SIM' ? 'rgba(99, 102, 241, 0.12)' : 'var(--bg-surface)',
+                  border: simType === 'Physical SIM' ? '2px solid var(--accent-primary)' : '1px solid var(--border-subtle)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '1rem',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  transition: 'all var(--transition-fast)'
+                }}
+              >
+                <div style={{ fontWeight: 800, fontSize: '1.05rem', color: simType === 'Physical SIM' ? 'var(--accent-primary)' : 'var(--text-primary)' }}>Physical SIM</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>Standard SIM card activation & setup</div>
+              </div>
+            </div>
+          </div>
 
           {devices.length > 0 && (
             <div style={{ marginBottom: '1.75rem' }}>
@@ -391,43 +462,64 @@ export default function ActivationWizard() {
             </div>
           )}
 
-          {/* Or Manual EID Entry */}
-          <div style={{ borderTop: devices.length > 0 ? '1px solid var(--border-subtle)' : 'none', paddingTop: devices.length > 0 ? '1.5rem' : 0 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-              <label className="form-label" style={{ marginBottom: 0 }}>
-                {devices.length > 0 ? 'Or Enter EID Manually' : 'Enter 32-Digit Device EID'}
-              </label>
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedDeviceId('manual');
-                  setManualEid('89049032000000000000000000001001');
-                }}
-                className="btn btn-secondary btn-sm"
-                style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
-              >
-                Autofill Test EID (starts with 89)
-              </button>
-            </div>
+          {/* Manual EID Entry - Only visible if eSIM is selected */}
+          {simType === 'eSIM' ? (
+            <div style={{ borderTop: devices.length > 0 ? '1px solid var(--border-subtle)' : 'none', paddingTop: devices.length > 0 ? '1.5rem' : 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <label className="form-label" style={{ marginBottom: 0 }}>
+                  {devices.length > 0 ? 'Or Enter EID Manually' : 'Enter 32-Digit Device EID'}
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedDeviceId('manual');
+                    setManualEid('89049032000000000000000000001001');
+                  }}
+                  className="btn btn-secondary btn-sm"
+                  style={{ fontSize: '0.75rem', padding: '0.2rem 0.5' }}
+                >
+                  Autofill Test EID
+                </button>
+              </div>
 
-            <div className="form-group">
-              <input
-                type="text"
-                className="form-input"
-                style={{ fontFamily: 'var(--font-mono)', fontSize: '0.9rem' }}
-                value={manualEid}
-                onChange={(e) => {
-                  setSelectedDeviceId('manual');
-                  setManualEid(e.target.value);
-                }}
-                placeholder="89049032000000000000000000001001"
-                maxLength={36}
-              />
-              <div className="form-hint">
-                Must be exactly 32 hexadecimal/numeric digits as printed on device box or in Settings → About.
+              <div className="form-group">
+                <input
+                  type="text"
+                  className="form-input"
+                  style={{ fontFamily: 'var(--font-mono)', fontSize: '0.9rem' }}
+                  value={manualEid}
+                  onChange={(e) => {
+                    setSelectedDeviceId('manual');
+                    setManualEid(e.target.value);
+                  }}
+                  placeholder="89049032000000000000000000001001"
+                  maxLength={36}
+                />
+                <div className="form-hint">
+                  Must be exactly 32 hexadecimal/numeric digits as printed on device box.
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div style={{ borderTop: devices.length > 0 ? '1px solid var(--border-subtle)' : 'none', paddingTop: devices.length > 0 ? '1.5rem' : 0 }}>
+              <div className="form-group">
+                <label className="form-label">Specify Your Device Model</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={deviceName}
+                  onChange={(e) => {
+                    setSelectedDeviceId('manual');
+                    setDeviceName(e.target.value);
+                  }}
+                  placeholder="e.g. iPhone 17 Pro, Samsung S24"
+                />
+                <div className="form-hint">
+                  Required for mapping correct network bands for physical SIM setup.
+                </div>
+              </div>
+            </div>
+          )}
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '2rem' }}>
             <button onClick={handleProceedFromStep1} className="btn btn-primary btn-lg">
@@ -725,11 +817,11 @@ export default function ActivationWizard() {
                   </div>
                   <div>
                     <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>
-                      Mock eSIM Profile Successfully Provisioned!
+                      {simType === 'eSIM' ? 'Mock eSIM Profile Successfully Provisioned!' : 'Physical SIM Card Activated!'}
                     </h3>
                     <div style={{ fontSize: '0.85rem', color: '#a7f3d0' }}>
-                      Carrier: <strong>{provisionedData.operator}</strong> • Request ID:{' '}
-                      <strong>{provisionedData.requestCode}</strong>
+                      Carrier: <strong>{provisionedData.operator}</strong> • Phone Number:{' '}
+                      <strong>+91 {mobileNumber.slice(-10)}</strong>
                     </div>
                   </div>
                 </div>
@@ -740,10 +832,67 @@ export default function ActivationWizard() {
                     className="btn btn-success btn-sm"
                   >
                     <CheckCircle2 size={15} />
-                    <span>Simulate Complete Installation & Activation</span>
+                    <span>Complete Activation</span>
                   </button>
                 </div>
               </div>
+
+              {simType === 'eSIM' ? (
+                <>
+                  {/* QR Code & LPA String Viewer for eSIM */}
+                  <QRCodeViewer
+                    qrCodeUrl={provisionedData.qrCodeUrl}
+                    activationCode={provisionedData.activationCode}
+                    smdpServer={provisionedData.smdpServer}
+                    requestId={provisionedData.requestCode}
+                    operator={provisionedData.operator}
+                    eid={provisionedData.eid}
+                  />
+
+                  {/* Step-by-Step Installation Guide */}
+                  <InstallationGuide />
+                </>
+              ) : (
+                /* Physical SIM Activation Details */
+                <div className="card card-glass" style={{ padding: '2rem', textAlign: 'center', marginBottom: '2rem' }}>
+                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📦</div>
+                  <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.75rem' }}>Your Physical SIM is Ready to Ship</h3>
+                  <p style={{ color: 'var(--text-secondary)', maxWidth: '580px', margin: '0 auto 1.5rem', fontSize: '0.92rem', lineHeight: 1.6 }}>
+                    Your physical SIM card has been mapped to your mobile number <strong>+91 {mobileNumber.slice(-10)}</strong> and device <strong>{deviceName || 'Handset'}</strong>. It has been successfully processed in our inventory and is ready for courier dispatch.
+                  </p>
+
+                  <div
+                    style={{
+                      background: 'var(--bg-surface)',
+                      border: '1px solid var(--border-subtle)',
+                      borderRadius: 'var(--radius-md)',
+                      padding: '1.25rem',
+                      display: 'inline-grid',
+                      gridTemplateColumns: 'repeat(3, 1fr)',
+                      gap: '2rem',
+                      textAlign: 'left',
+                      marginBottom: '1rem'
+                    }}
+                  >
+                    <div>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>SIM Status</span>
+                      <div style={{ fontWeight: 800, color: 'var(--accent-success)', fontSize: '1rem', marginTop: '0.2rem' }}>ACTIVE</div>
+                    </div>
+                    <div>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>5G Eligibility</span>
+                      <div style={{ fontWeight: 800, color: 'var(--accent-cyan)', fontSize: '1rem', marginTop: '0.2rem' }}>ELIGIBLE (VoNR)</div>
+                    </div>
+                    <div>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Courier Dispatch</span>
+                      <div style={{ fontWeight: 800, color: '#fff', fontSize: '1rem', marginTop: '0.2rem' }}>PENDING</div>
+                    </div>
+                  </div>
+                  
+                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+                    * An SMS confirmation has been sent to +91 {mobileNumber.slice(-10)} containing shipment tracking details.
+                  </div>
+                </div>
+              )}
 
               {/* Status Timeline */}
               <div className="card" style={{ marginBottom: '2rem' }}>
@@ -751,56 +900,11 @@ export default function ActivationWizard() {
                   Live Provisioning Lifecycle Status
                 </h3>
                 <StatusTimeline currentStatus={activationStatus} />
-
-                {/* Demo Status Controller Controls */}
-                <div
-                  style={{
-                    marginTop: '1rem',
-                    background: 'var(--bg-surface)',
-                    border: '1px solid var(--border-subtle)',
-                    padding: '0.85rem 1.25rem',
-                    borderRadius: 'var(--radius-md)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    flexWrap: 'wrap',
-                    gap: '0.75rem'
-                  }}
-                >
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                    ⚡ Demo Status Switcher (Test lifecycle transitions):
-                  </span>
-                  <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                    {['PROFILE_READY', 'INSTALLATION_PENDING', 'ACTIVATED', 'FAILED'].map(st => (
-                      <button
-                        key={st}
-                        onClick={() => handleSimulateStatus(st)}
-                        className={`btn btn-sm ${activationStatus === st ? 'btn-primary' : 'btn-secondary'}`}
-                        style={{ fontSize: '0.75rem', padding: '0.25rem 0.55rem' }}
-                      >
-                        {st}
-                      </button>
-                    ))}
-                  </div>
-                </div>
               </div>
-
-              {/* QR Code & LPA String Viewer */}
-              <QRCodeViewer
-                qrCodeUrl={provisionedData.qrCodeUrl}
-                activationCode={provisionedData.activationCode}
-                smdpServer={provisionedData.smdpServer}
-                requestId={provisionedData.requestCode}
-                operator={provisionedData.operator}
-                eid={provisionedData.eid}
-              />
-
-              {/* Step-by-Step Installation Guide */}
-              <InstallationGuide />
 
               <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '2.5rem' }}>
                 <Link to="/dashboard" className="btn btn-secondary btn-lg">
-                  <span>Return to Subscriber Dashboard</span>
+                  <span>Return to Dashboard</span>
                 </Link>
                 <Link to="/activations" className="btn btn-primary btn-lg">
                   <span>View All Activation Records</span>
