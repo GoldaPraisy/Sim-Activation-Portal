@@ -13,6 +13,8 @@ import {
 } from '../services/api';
 import confetti from 'canvas-confetti';
 import toast from 'react-hot-toast';
+import { auth } from '../firebase';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 
 import {
   Smartphone,
@@ -176,14 +178,40 @@ export default function ActivationWizard() {
 
     setOtpLoading(true);
     try {
-      const res = await sendOtp(mobileNumber);
-      if (res.data.success) {
-        setOtpSent(true);
-        setTimerSeconds(60);
-        toast.success(res.data.message || 'OTP sent successfully to your mobile number.');
+      // Initialize reCAPTCHA if it doesn't exist
+      if (!window.recaptchaVerifier) {
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+          size: 'invisible',
+          callback: (response) => {
+            // reCAPTCHA solved
+          },
+          'expired-callback': () => {
+             // Response expired
+             window.recaptchaVerifier.clear();
+             window.recaptchaVerifier = null;
+          }
+        });
       }
+
+      const appVerifier = window.recaptchaVerifier;
+      let formattedNumber = mobileNumber;
+      if (!formattedNumber.startsWith('+')) {
+         formattedNumber = `+91${formattedNumber}`; // Defaulting to India code
+      }
+
+      const confirmationResult = await signInWithPhoneNumber(auth, formattedNumber, appVerifier);
+      window.confirmationResult = confirmationResult;
+
+      setOtpSent(true);
+      setTimerSeconds(60);
+      toast.success('OTP sent successfully to your mobile number via Firebase.');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to send OTP.');
+      console.error(err);
+      toast.error(err.message || 'Failed to send OTP.');
+      if (window.recaptchaVerifier) {
+         window.recaptchaVerifier.clear();
+         window.recaptchaVerifier = null;
+      }
     } finally {
       setOtpLoading(false);
     }
@@ -198,15 +226,17 @@ export default function ActivationWizard() {
 
     setOtpLoading(true);
     try {
-      const res = await verifyOtp(mobileNumber, otpCode);
-      if (res.data.success) {
-        setOtpVerified(true);
-        toast.success('Mobile verification successful!');
-        // Open Payment Modal immediately
-        setIsPaymentModalOpen(true);
+      if (!window.confirmationResult) {
+         throw new Error("No OTP request found. Please resend OTP.");
       }
+      await window.confirmationResult.confirm(otpCode);
+      setOtpVerified(true);
+      toast.success('Mobile verification successful!');
+      // Open Payment Modal immediately
+      setIsPaymentModalOpen(true);
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Invalid OTP code. Please retry.');
+      console.error(err);
+      toast.error(err.message || 'Invalid OTP code. Please retry.');
     } finally {
       setOtpLoading(false);
     }
@@ -658,6 +688,7 @@ export default function ActivationWizard() {
                 disabled={otpSent && otpVerified}
                 required
               />
+              <div id="recaptcha-container"></div>
               <button
                 type="button"
                 onClick={handleSendOtp}
