@@ -461,21 +461,10 @@ export default function ActivationWizard() {
           {/* Manual EID Entry - Only visible if eSIM is selected */}
           {simType === 'eSIM' ? (
             <div style={{ borderTop: devices.length > 0 ? '1px solid var(--border-subtle)' : 'none', paddingTop: devices.length > 0 ? '1.5rem' : 0 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <div style={{ marginBottom: '0.75rem' }}>
                 <label className="form-label" style={{ marginBottom: 0 }}>
                   {devices.length > 0 ? 'Or Enter EID Manually' : 'Enter 32-Digit Device EID'}
                 </label>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedDeviceId('manual');
-                    setManualEid('89049032000000000000000000001001');
-                  }}
-                  className="btn btn-secondary btn-sm"
-                  style={{ fontSize: '0.75rem', padding: '0.2rem 0.5' }}
-                >
-                  Autofill Test EID
-                </button>
               </div>
 
               <div className="form-group">

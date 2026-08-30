@@ -91,37 +91,7 @@ export default function DeviceManagement() {
     });
   };
 
-  const handleSampleEidFill = (type) => {
-    if (type === 'iphone') {
-      setFormData({
-        device_name: 'iPhone 15 Pro',
-        device_model: 'A3106 Global',
-        os: 'iOS 17.5',
-        device_type: 'iPhone',
-        eid: '89049032000000000000000000001001',
-        imei: '354890123456789'
-      });
-      setEidValidationStatus({
-        isValid: true,
-        message: 'Valid GSMA Telecom EID format (starts with 89)',
-        formatted: '8904 9032 0000 0000 0000 0000 1001'
-      });
-    } else {
-      setFormData({
-        device_name: 'Samsung Galaxy S24 Ultra',
-        device_model: 'SM-S928B',
-        os: 'Android 14 (One UI 6.1)',
-        device_type: 'Android',
-        eid: '89049032000000000000000000002002',
-        imei: '359123456789012'
-      });
-      setEidValidationStatus({
-        isValid: true,
-        message: 'Valid GSMA Telecom EID format (starts with 89)',
-        formatted: '8904 9032 0000 0000 0000 0000 2002'
-      });
-    }
-  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -193,28 +163,8 @@ export default function DeviceManagement() {
       <div className="grid-2">
         {/* Registration Form */}
         <div className="card card-glass card-glow-cyan">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+          <div style={{ marginBottom: '1.25rem' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Register New Device</h2>
-            <div style={{ display: 'flex', gap: '0.4rem' }}>
-              <button
-                type="button"
-                onClick={() => handleSampleEidFill('iphone')}
-                className="btn btn-secondary btn-sm"
-                style={{ fontSize: '0.75rem', padding: '0.25rem 0.55rem' }}
-                title="Fill Sample iPhone EID"
-              >
-                Sample iPhone
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSampleEidFill('android')}
-                className="btn btn-secondary btn-sm"
-                style={{ fontSize: '0.75rem', padding: '0.25rem 0.55rem' }}
-                title="Fill Sample Galaxy EID"
-              >
-                Sample Galaxy
-              </button>
-            </div>
           </div>
 
           <form onSubmit={handleSubmit}>
@@ -366,7 +316,7 @@ export default function DeviceManagement() {
               <Smartphone size={48} style={{ opacity: 0.4, marginBottom: '0.75rem' }} />
               <div style={{ fontWeight: 600, fontSize: '1.05rem', color: 'var(--text-primary)' }}>No Registered Devices</div>
               <p style={{ fontSize: '0.85rem', marginTop: '0.25rem' }}>
-                Use the form on the left or click "Sample iPhone" to add your first eSIM device.
+                Use the form on the left to add your first device.
               </p>
             </div>
           ) : (
