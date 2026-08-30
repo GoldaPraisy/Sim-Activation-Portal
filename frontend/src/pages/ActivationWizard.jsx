@@ -65,7 +65,6 @@ export default function ActivationWizard() {
   // OTP State
   const [mobileNumber, setMobileNumber] = useState(user?.phone || '9876543210');
   const [otpCode, setOtpCode] = useState('');
-  const [devOtp, setDevOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(60);
@@ -181,10 +180,7 @@ export default function ActivationWizard() {
       if (res.data.success) {
         setOtpSent(true);
         setTimerSeconds(60);
-        if (res.data.devOtp) {
-          setDevOtp(res.data.devOtp);
-        }
-        toast.success(res.data.message || 'Simulated OTP dispatched.');
+        toast.success(res.data.message || 'OTP sent successfully to your mobile number.');
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to send OTP.');
@@ -624,7 +620,7 @@ export default function ActivationWizard() {
         </div>
       )}
 
-      {/* STEP 3: Mobile Verification & Simulated OTP */}
+      {/* STEP 3: Mobile Verification */}
       {currentStep === 3 && (
         <div className="card card-glass" style={{ maxWidth: '560px', margin: '0 auto' }}>
           <h2 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -632,7 +628,7 @@ export default function ActivationWizard() {
             Step 3: Mobile Number Verification
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-            Verify your mobile identity via simulated telecom OTP security.
+            Enter your mobile number to receive a one-time verification code.
           </p>
 
           {/* Selected Plan Snapshot */}
@@ -684,39 +680,6 @@ export default function ActivationWizard() {
               </button>
             </div>
           </div>
-
-          {/* Dev Mode OTP Helper Box */}
-          {devOtp && !otpVerified && (
-            <div
-              style={{
-                background: 'rgba(6, 182, 212, 0.1)',
-                border: '1px solid rgba(6, 182, 212, 0.3)',
-                borderRadius: 'var(--radius-md)',
-                padding: '0.85rem 1rem',
-                marginBottom: '1.25rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}
-            >
-              <div>
-                <span style={{ fontSize: '0.78rem', color: '#67e8f9', textTransform: 'uppercase', fontWeight: 700 }}>
-                  Simulated Dev OTP:
-                </span>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.2rem', fontWeight: 800, color: '#fff', letterSpacing: '0.15em' }}>
-                  {devOtp}
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setOtpCode(devOtp)}
-                className="btn btn-secondary btn-sm"
-                style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
-              >
-                1-Click Fill OTP
-              </button>
-            </div>
-          )}
 
           {otpSent && (
             <div className="form-group">

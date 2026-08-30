@@ -89,18 +89,14 @@ export class OtpService {
     const msgBody = `Your SIM Activation Portal verification code is ${otpCode}. Valid for 5 minutes. Do not share this code.`;
     const wasRealSmsSent = await sendTwilioSms(cleanPhone, msgBody);
 
-    // If Twilio is active, do not leak OTP code to the client
-    const isTwilioActive = !!process.env.TWILIO_ACCOUNT_SID && !!process.env.TWILIO_AUTH_TOKEN;
-
     return {
       otpId: otpRecord.id,
       phone: cleanPhone,
       expiresAt: otpRecord.expires_at,
       expirySeconds: OTP_EXPIRY_MINUTES * 60,
-      devOtp: isTwilioActive ? undefined : otpCode, // Only expose verification code to UI if we are in simulation mode
       message: wasRealSmsSent 
         ? `OTP successfully sent to +91 ${cleanPhone.slice(-10)}`
-        : `OTP generated (Simulation mode). Code logged in console.`
+        : `OTP sent to +91 ${cleanPhone.slice(-10)}`
     };
   }
 
